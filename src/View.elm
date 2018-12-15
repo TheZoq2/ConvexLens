@@ -2,18 +2,18 @@ module View exposing (view)
 
 -- Standard library imports
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Svg
-import Svg.Attributes
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Events exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Svg.Styled as Svg exposing (svg)
+import Svg.Styled.Attributes as SvgAttributes exposing (viewBox)
 
 -- External imports
 
 import List.Extra
 import Mouse
 import Graph
-import Style
 
 -- Main imports
 
@@ -36,6 +36,7 @@ import TimeUnits exposing
     )
 import Signal exposing (continuousRead, isRisingEdge, isFallingEdge, edgeTrigger)
 import CircularBuffer
+import Style
 
 
 
@@ -70,13 +71,8 @@ singleChoiseSelector : a -> List a -> (a -> String) -> (a -> Msg) -> List (Html 
 singleChoiseSelector current choises nameFunction msg =
     List.map
         (\alternative ->
-            button
+            (if alternative == current then Style.selectedButton else Style.unselectedButton)
                 [ onClick (msg alternative)
-                , (if alternative == current then
-                        Style.class [Style.SelectedButton]
-                    else 
-                        Style.class []
-                    )
                 ]
                 [ text <| nameFunction alternative
                 ]
@@ -86,20 +82,20 @@ singleChoiseSelector current choises nameFunction msg =
 
 drawGraph : (Int, Int) -> (Float, Float) -> List (Float, Bool) -> Html Msg
 drawGraph (viewWidth, viewHeight) valueRange readingList =
-    div [Style.class [Style.Graph], Mouse.onDown GraphClicked]
+    Style.graphContainer [Html.Styled.Attributes.fromUnstyled <| Mouse.onDown GraphClicked]
         [ Svg.svg
-            [ Svg.Attributes.viewBox <| "0 0 " ++ (toString viewWidth) ++ " " ++ (toString viewHeight)
-            , Svg.Attributes.width <| toString viewWidth ++ "px"
-            , Svg.Attributes.height <| toString viewHeight ++ "px"
+            [ SvgAttributes.viewBox <| "0 0 " ++ (toString viewWidth) ++ " " ++ (toString viewHeight)
+            , SvgAttributes.width <| toString viewWidth ++ "px"
+            , SvgAttributes.height <| toString viewHeight ++ "px"
             ]
-            [ Graph.drawHorizontalLines (viewWidth, viewHeight) (0,1) 1
-            , Graph.drawGraph (viewWidth, viewHeight) (0,1) valueRange
+            [ Svg.fromUnstyled <| Graph.drawHorizontalLines (viewWidth, viewHeight) (0,1) 1
+            , Svg.fromUnstyled <| Graph.drawGraph (viewWidth, viewHeight) (0,1) valueRange
               <| List.map (\(time, val) -> if val then (time, 1) else (time, 0)) readingList
             ]
         ]
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
     let
         readings = List.map stepPreprocessor 
@@ -160,8 +156,8 @@ view model =
 
         buttonRow = [div [] [button [onClick ResetValues] [text "Reset"]]]
     in
-        contentContainer model
-            <|  [ div [Style.class [Style.ButtonRow]]
+        toUnstyled <| contentContainer model
+            <|  [ Style.buttonRow []
                     [ triggerModeRow
                     , triggerChannelSelector
                     , timeSpanSelection
@@ -171,6 +167,8 @@ view model =
                 (List.map graphFunction readings)
                 ++
                 buttonRow
+                ++
+                [Style.globalStyle]
 
 
 
@@ -181,16 +179,12 @@ contentContainer model children =
             if model.mouseDragReceiver == Nothing then
                 []
             else
-                [ Mouse.onMove MouseGlobalMove
-                , Mouse.onUp MouseGlobalUp
-                , Mouse.onLeave MouseGlobalLeave
+                [ Html.Styled.Attributes.fromUnstyled <| Mouse.onMove MouseGlobalMove
+                , Html.Styled.Attributes.fromUnstyled <| Mouse.onUp MouseGlobalUp
+                , Html.Styled.Attributes.fromUnstyled <| Mouse.onLeave MouseGlobalLeave
                 ]
     in
-    div
-        ( [ Style.class [Style.Content]
-          ]
-          ++
-          eventListeners
-        )
+    Style.contentContainer
+        eventListeners
         children
 
