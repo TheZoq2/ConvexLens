@@ -12,6 +12,7 @@ import Json.Decode
 import View exposing (view)
 import Model exposing (Model, init, MouseDragReceiver(..))
 import Msg exposing (Msg(..))
+import CircularBuffer
 
 -- Internal imports
 import Types exposing
@@ -36,7 +37,7 @@ update msg model =
                 case decoded of
                     Ok (NewReading reading) ->
                         ({model
-                            | readings = model.readings ++ [reading]
+                            | readings = CircularBuffer.push reading model.readings
                             , currentReading = reading
                         }, Cmd.none)
                     Ok (CurrentTime time) ->
@@ -66,7 +67,7 @@ update msg model =
         TriggerChannelSet index ->
             ({model | triggerChannel = index}, Cmd.none)
         ResetValues ->
-            ({model | readings = []}, Cmd.none)
+            (Model.resetBuffer model, Cmd.none)
         MouseGlobalMove {clientPos} ->
             let
                 (newX, _) = clientPos

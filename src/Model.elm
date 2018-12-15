@@ -1,8 +1,13 @@
-module Model exposing (Model, init, MouseDragReceiver(..))
+module Model exposing (Model, init, MouseDragReceiver(..), resetBuffer)
 
 import Types exposing (Reading, TriggerMode(..))
 import TimeUnits exposing (Time, TimeUnit(..))
 import Msg exposing (Msg)
+import CircularBuffer exposing (CircularBuffer)
+
+
+circularBufferSize : Int
+circularBufferSize = 200
 
 -- Helper types
 type MouseDragReceiver
@@ -11,7 +16,7 @@ type MouseDragReceiver
 -- Model and init
 
 type alias Model =
-    { readings: List Reading
+    { readings: CircularBuffer Reading
     , currentReading: Reading
     , triggerMode: TriggerMode
     , timeSpan: Time
@@ -24,7 +29,7 @@ type alias Model =
 
 init : (Model, Cmd Msg)
 init =
-    ( { readings = initialReadings
+    ( { readings = CircularBuffer.new circularBufferSize
       , currentReading = (Reading [False, False] 400)
       , triggerMode = FallingEdge
       , timeSpan = Time Millisecond 1
@@ -37,10 +42,7 @@ init =
     )
 
 
-initialReadings : List Reading
-initialReadings =
-    [ Reading [False, False] 0
-    , Reading [True, False] 100
-    , Reading [False, True] 300
-    , Reading [True, True] 350
-    ]
+
+resetBuffer : Model -> Model
+resetBuffer model =
+    {model | readings = CircularBuffer.new circularBufferSize}

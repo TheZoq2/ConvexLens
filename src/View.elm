@@ -35,6 +35,7 @@ import TimeUnits exposing
     , TimeUnit
     )
 import Signal exposing (continuousRead, isRisingEdge, isFallingEdge, edgeTrigger)
+import CircularBuffer
 
 
 
@@ -102,7 +103,8 @@ view : Model -> Html Msg
 view model =
     let
         readings = List.map stepPreprocessor 
-            <| readingsToChannels (model.readings ++ [model.currentReading])
+            <| readingsToChannels
+            <| (CircularBuffer.intoList model.readings) ++ [model.currentReading]
 
 
         valueRange = edgeTrigger
