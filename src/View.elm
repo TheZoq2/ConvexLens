@@ -138,7 +138,9 @@ view model =
             div
                 []
                 ([ label [] [text "Time range: "]
-                , input [onInput TimeSpanSet, placeholder (toString model.timeSpan.value)] []
+                , Style.inputField 
+                    [onInput TimeSpanSet, placeholder (toString model.timeSpan.value)]
+                    []
                 ]
                 ++ timeUnitSelector model.timeSpan.unit TimeSpanUnitSet
                 )

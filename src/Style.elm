@@ -57,7 +57,7 @@ graphContainer =
         , Css.Global.descendants
             [ Css.Global.polyline
                 [ property "stroke-width" "2px"
-                , property "stroke" "#62c08b"
+                , property "stroke" "#ff4545"
                 ]
             ]
         ]
@@ -85,15 +85,28 @@ buttonRow =
             ]
         ]
 
+
+
+inputField : List (Attribute msg) -> List (Html msg) -> Html msg
+inputField =
+    styled input
+        [ border (px 0)
+        , padding (px 5)
+        , borderBottom3 (px 3) solid (rgb 142 42 186)
+        , backgroundColor (hex "#0b151d")
+        , color (hex "#fff")
+        ]
+
+
+
 {-|
   A button with the standard look for the project
 -}
 styledButton : List (Attribute msg) -> List (Html msg) -> Html msg
 styledButton =
     styled button
-        [ borderBottom3 (px 4) solid (rgba 0 0 0 0)
-        , borderRadius (px 3)
-        , padding2 (px 4) (px 6)
+        [ borderRadius (px 2)
+        , padding2 (px 7) (px 8)
         , paddingBottom (px 0)
         , boxShadow4 (px 2) (px 2) (px 2) (hex "000")
         , margin (px 3)
@@ -111,11 +124,14 @@ unselectedButton =
         [ borderTop (px 0)
         , borderLeft (px 0)
         , borderRight (px 0)
+        , borderBottom3 (px 4) solid (rgba 0 0 0 0)
         ]
 
 selectedButton : List (Attribute msg) -> List (Html msg) -> Html msg
 selectedButton =
     styled styledButton
-        [ border (px 0)
+        [ borderTop (px 0)
+        , borderLeft (px 0)
+        , borderRight (px 0)
         , borderBottom3 (px 3) solid (rgb 142 42 186)
         ]
