@@ -8,6 +8,8 @@ import CircularBuffer exposing (CircularBuffer)
 
 circularBufferSize : Int
 circularBufferSize = 200
+channelAmount: Int
+channelAmount = 8
 
 -- Helper types
 type MouseDragReceiver
@@ -24,20 +26,22 @@ type alias Model =
     , mouseDragReceiver: Maybe MouseDragReceiver
     , lastDragPos: (Float, Float)
     , graphOffset: Float
+    , activeChannels: List Bool
     }
 
 
 init : (Model, Cmd Msg)
 init =
     ( { readings = CircularBuffer.new circularBufferSize
-      , currentReading = (Reading [False, False] 400)
+      , currentReading = (Reading (List.repeat channelAmount False) 400)
       , triggerMode = FallingEdge
       , timeSpan = Time Millisecond 1
       , triggerChannel = 1
       , mouseDragReceiver = Nothing
       , lastDragPos = (0,0)
       , graphOffset = 0
-    }
+      , activeChannels = List.repeat channelAmount True
+      }
     , Cmd.none
     )
 

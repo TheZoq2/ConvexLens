@@ -16,6 +16,7 @@ type Msg
     | TimeSpanSet String
     | TimeSpanUnitSet TimeUnit
     | TriggerChannelSet Int
+    | ChannelToggled Int
     | ResetValues
     | GraphClicked Mouse.Event
     | MouseGlobalMove Mouse.Event

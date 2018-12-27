@@ -12,6 +12,7 @@ import Json.Decode
 import View exposing (view)
 import Model exposing (Model, init, MouseDragReceiver(..))
 import Msg exposing (Msg(..))
+import Sockets exposing (Message(..))
 import CircularBuffer
 
 -- Internal imports
@@ -66,6 +67,18 @@ update msg model =
                 ({model | timeSpan = { oldSpan | unit = unit }} |> resetOffset, Cmd.none)
         TriggerChannelSet index ->
             ({model | triggerChannel = index}, Cmd.none)
+        ChannelToggled index ->
+            let
+                updateFunction i val =
+                    if i == index then
+                        not val
+                    else
+                        val
+                activeChannels = List.indexedMap updateFunction model.activeChannels
+            in
+                ( { model | activeChannels = activeChannels}
+                , Sockets.sendMessage url <| ActiveChannels activeChannels
+                )
         ResetValues ->
             (Model.resetBuffer model, Cmd.none)
         MouseGlobalMove {clientPos} ->

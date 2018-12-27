@@ -80,10 +80,11 @@ singleChoiseSelector current choises nameFunction msg =
         choises
 
 
-drawGraph : (Int, Int) -> (Float, Float) -> List (Float, Bool) -> Html Msg
-drawGraph (viewWidth, viewHeight) valueRange readingList =
+drawGraph : (Int, Int) -> (Float, Float) -> (Int, Bool, List (Float, Bool)) -> Html Msg
+drawGraph (viewWidth, viewHeight) valueRange (index, active, readingList) =
     Style.graphContainer [Html.Styled.Attributes.fromUnstyled <| Mouse.onDown GraphClicked]
-        [ Svg.svg
+        [ input [type_ "checkbox", checked active, onClick <| ChannelToggled index] []
+        , Svg.svg
             [ SvgAttributes.viewBox <| "0 0 " ++ (toString viewWidth) ++ " " ++ (toString viewHeight)
             , SvgAttributes.width <| toString viewWidth ++ "px"
             , SvgAttributes.height <| toString viewHeight ++ "px"
@@ -166,11 +167,18 @@ view model =
                     ]
                 ]
                 ++
-                (List.map graphFunction readings)
+                (List.map graphFunction
+                    <| List.map3 
+                        (,,)
+                        (List.range 0 (List.length readings))
+                        model.activeChannels
+                        readings
+                )
                 ++
                 buttonRow
                 ++
                 [Style.globalStyle]
+
 
 
 
